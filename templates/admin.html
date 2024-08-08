@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %} - Admin{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <script src="https://cdn.tiny.cloud/1/s3vws9rgj3x2fsnnh82dbqg8qt17wpwldhe94r8n77ntvecw/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="admin-panel">
+        <h2>Admin Panel</h2>
+        <form method="POST" action="{{ url_for('admin') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Article Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group editor-container">
+                <label for="content">Article Content:</label>
+                <textarea id="content" name="content"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="file">Upload Image:</label>
+                <input type="file" id="file" name="file">
+            </div>
+            <button type="submit">Create Article</button>
+        </form>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    tinymce.init({
+        selector: '#content',
+        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        width: '100%',
+        height: 500,
+        menubar: 'file edit view insert format tools table help',
+        image_advtab: true,
+        image_uploadtab: true,
+        media_live_embeds: true,
+        automatic_uploads: true,
+        file_picker_types: 'file image media',
+        file_picker_callback: function (cb, value, meta) {
+            var input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*,video/*');
+
+            input.onchange = function () {
+                var file = this.files[0];
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var id = 'blobid' + (new Date()).getTime();
+                    var blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                    var base64 = reader.result.split(',')[1];
+                    var blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+                    cb(blobInfo.blobUri(), { title: file.name });
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        },
+        setup: function(editor) {
+            editor.on('init', function(e) {
+                console.log('Editor initialized');
+            });
+            editor.on('change', function() {
+                tinymce.triggerSave();
+            });
+        }
+    });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        var content = tinymce.get('content').getContent();
+        if (!content) {
+            e.preventDefault();
+            alert('Please enter some content for the article.');
+        }
+    });
+});
+    </script>
+{% endblock %}

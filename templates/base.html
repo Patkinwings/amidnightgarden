@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkPathways{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="page-container">
+        <header>
+            <div class="container">
+                <h1 class="main-title">
+                    <img src="{{ url_for('static', filename='images/alice.png') }}" alt="Logo" class="title-image">
+                    <span>MarkPathways</span>
+                </h1>
+                <nav>
+                    <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+                    <ul class="nav-list">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('about') }}">About</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('admin') }}">Admin</a></li>
+                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        {% else %}
+                            
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main>
+            <div class="rectangular-image-container">
+                <img src="{{ url_for('static', filename='images/file.png') }}" alt="Rectangular Image" class="rectangular-image">
+            </div>
+            <div class="container content-wrap">
+                <div class="articles-container">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+        <footer>
+            <div class="container">
+                <p>&copy; 2024 MarkPathways</p>
+            </div>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var menuToggle = document.querySelector('.menu-toggle');
+            var navList = document.querySelector('.nav-list');
+            
+            if (menuToggle && navList) {
+                menuToggle.addEventListener('click', function() {
+                    navList.classList.toggle('show');
+                    console.log('Menu toggled'); // For debugging
+                });
+            } else {
+                console.log('Menu toggle or nav list not found'); // For debugging
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>
